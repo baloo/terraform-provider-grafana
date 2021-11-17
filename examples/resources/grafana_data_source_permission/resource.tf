@@ -1,0 +1,35 @@
+resource "grafana_team" "team" {
+  name = "Team Name"
+}
+
+data "grafana_user" "user" {
+  email    = "user.name@example.com"
+  password = "test"
+}
+
+resource "grafana_data_source" "foo" {
+  type = "cloudwatch"
+  name = "cw-example"
+
+  json_data {
+    default_region = "us-east-1"
+    auth_type      = "keys"
+  }
+
+  secure_json_data {
+    access_key = "123"
+    secret_key = "456"
+  }
+}
+
+resource "grafana_data_source_permission" "fooPermissions" {
+  datasource_id = grafana_data_source.foo.id
+  permissions {
+    team_id    = grafana_team.team.id
+    permission = "Query"
+  }
+  permissions {
+    user_id    = grafana_user.user.id
+    permission = "Query"
+  }
+}
